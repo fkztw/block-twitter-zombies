@@ -1,3 +1,4 @@
+import datetime
 import time
 from pprint import pprint
 
@@ -27,6 +28,31 @@ def save_newest_follower_id(newest_follower_id):
         f.write(str(newest_follower_id))
 
 
+def log_blocked_user(blocked_user):
+    with open(config.BTZ_BLOCKED_USERS_LOG_FILENAME, 'a') as f:
+        now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        f.write(f"[{now}] @{blocked_user.screen_name} {blocked_user.id}")
+
+def block_if_zombie(follower):
+    # Zombie: No followers and use default profile image.
+    if (
+        follower.followers_count == 0 and
+        "http://abs.twimg.com/sticky/default_profile_images" in follower.profile_image_url
+    ):
+        try:
+            api.CreateBlock(
+                user_id=follower.id,
+                include_entities=False,
+                skip_status=True,
+            )
+        except Exception as e:
+            print(e)
+            print(f"Failed to blocked user: @{blocked_user.screen_name}")
+        else:
+            print(f"Blocked user: @{blocked_user.screen_name}")
+            log_blocked_user(follower)
+
+
 def main():
     last_newest_follower_id = get_last_newest_follower_id()
 
@@ -51,12 +77,13 @@ def main():
             print(f"next_cursor: {next_cursor}")
             print(f"previous_cursor: {previous_cursor}")
 
-            if first_round:
-                last_newest_follower_id = previous_cursor
-                first_round = False
-
             for follower in followers:
+                if first_round:
+                    last_newest_follower_id = follower.id
+                    first_round = False
+
                 pprint(follower._json)
+                block_if_zombie(follower)
 
         finally:
             if last_newest_follower_id is not None:
