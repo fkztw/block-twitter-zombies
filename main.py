@@ -62,7 +62,6 @@ def main():
         try:
             next_cursor, previous_cursor, followers = api.GetFollowersPaged(
                 cursor=next_cursor or last_newest_follower_id or -1,
-                count=config.BTZ_GET_FOLLOWERS_PAGINATION_SIZE,
                 skip_status=True,
                 include_user_entities=False,
             )
