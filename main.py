@@ -28,33 +28,44 @@ def save_newest_follower_id(newest_follower_id):
 
 
 def main():
-    newest_follower_id = get_last_newest_follower_id()
+    last_newest_follower_id = get_last_newest_follower_id()
 
+    next_cursor = None
+    first_round = True
     while True:
-        print(f"newest_follower_id: {newest_follower_id}")
         try:
             next_cursor, previous_cursor, followers = api.GetFollowersPaged(
-                cursor=newest_follower_id,
-                count=config.BTZ_GET_FOLLOWERS_PAGINATION,
+                cursor=next_cursor or last_newest_follower_id or -1,
+                count=config.BTZ_GET_FOLLOWERS_PAGINATION_SIZE,
                 skip_status=True,
                 include_user_entities=False,
             )
+
         except twitter.error.TwitterError as e:
             print(e)
+
         except KeyboardInterrupt:
             return
+
         else:
             print(f"next_cursor: {next_cursor}")
             print(f"previous_cursor: {previous_cursor}")
-            for i, follower in enumerate(followers):
-                pprint(follower._json)
-                if i == 0:
-                    newest_follower_id = follower.id
-        finally:
-            if newest_follower_id is not None:
-                save_newest_follower_id(newest_follower_id)
 
-        time.sleep(config.BTZ_CHECK_INTERVAL_SECONDS)
+            if first_round:
+                last_newest_follower_id = previous_cursor
+                first_round = False
+
+            for follower in followers:
+                pprint(follower._json)
+
+        finally:
+            if last_newest_follower_id is not None:
+                save_newest_follower_id(last_newest_follower_id)
+
+        if next_cursor == 0:
+            time.sleep(config.BTZ_CHECK_INTERVAL_SECONDS)
+            first_round = True
+            next_cursor = None
 
 if __name__ == "__main__":
     main()
