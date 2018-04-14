@@ -2,4 +2,4 @@ docker_build:
 	docker build -t block-twitter-zombies .
 
 docker_run:
-	docker run -it --mount src=`pwd`,target=/usr/src/app,type=bind block-twitter-zombies:latest
+	docker run -it -v `pwd`:/usr/src/app block-twitter-zombies:latest
