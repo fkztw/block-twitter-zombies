@@ -17,7 +17,7 @@ api = twitter.Api(
 
 def get_last_cursor():
     try:
-        with open(config.BTZ_last_cursor_FILENAME, 'r') as f:
+        with open(config.BTZ_LAST_CURSOR_FILENAME, 'r') as f:
             return int(f.read())
     except:
         return None
