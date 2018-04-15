@@ -31,7 +31,7 @@ def save_cursor(last_cursor):
 def log_blocked_user(blocked_user):
     with open(config.BTZ_BLOCKED_USERS_LOG_FILENAME, 'a') as f:
         now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        f.write(f"[{now}] @{blocked_user.screen_name} {blocked_user.id}")
+        f.write(f"[{now}] @{blocked_user.screen_name} {blocked_user.id}\n")
 
 def block_if_zombie(follower):
     # Zombie: No followers and use default profile image.
