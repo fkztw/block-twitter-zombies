@@ -15,17 +15,17 @@ api = twitter.Api(
 )
 
 
-def get_last_cursor():
+def get_last_round_newest_follower_id():
     try:
-        with open(config.BTZ_LAST_CURSOR_FILENAME, 'r') as f:
+        with open(config.BTZ_LAST_ROUND_NEWEST_FOLLOWER_ID_FILENAME, 'r') as f:
             return int(f.read())
     except:
         return None
 
 
-def save_cursor(last_cursor):
-    with open(config.BTZ_LAST_CURSOR_FILENAME, 'w') as f:
-        f.write(str(last_cursor))
+def save_newest_follower_id(newest_follower_id):
+    with open(config.BTZ_LAST_ROUND_NEWEST_FOLLOWER_ID_FILENAME, 'w') as f:
+        f.write(str(newest_follower_id))
 
 
 def log_blocked_user(blocked_user):
@@ -55,18 +55,15 @@ def block_if_zombie(follower):
 
 
 def main():
-    last_cursor = get_last_cursor()
-    print(f"last_cursor: {last_cursor}")
+    newest_follower_id = get_last_round_newest_follower_id()
+    print(f"newest_follower_id: {newest_follower_id}")
 
     next_cursor = None
     first_round = True
     while True:
-        cursor = next_cursor or last_cursor or -1
-        print(f"cursor: {cursor}")
-
         try:
             next_cursor, previous_cursor, followers = api.GetFollowersPaged(
-                cursor=cursor,
+                cursor=next_cursor,
                 skip_status=True,
                 include_user_entities=False,
             )
@@ -82,16 +79,20 @@ def main():
             print(f"previous_cursor: {previous_cursor}")
 
             for follower in followers:
+                if follower.id == newest_follower_id:
+                    print(f"Break at newest_follower_id: {newest_follower_id}, @{follower.screen_name}")
+                    break
+
                 if first_round:
-                    last_cursor = next_cursor
+                    newest_follower_id = follower.id
                     first_round = False
 
-                pprint(follower._json)
+                # pprint(follower._json)
                 block_if_zombie(follower)
 
         finally:
-            if last_cursor is not None:
-                save_cursor(last_cursor)
+            if newest_follower_id is not None:
+                save_newest_follower_id(newest_follower_id)
 
         if next_cursor == 0:
             time.sleep(config.BTZ_CHECK_INTERVAL_SECONDS)
