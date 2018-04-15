@@ -50,8 +50,8 @@ def block_if_zombie(follower):
             print(e)
             print(f"Failed to blocked user: @{blocked_user.screen_name}")
         else:
-            print(f"Blocked user: @{blocked_user.screen_name}")
             log_blocked_user(follower)
+            print(f"Blocked user: @{follower.screen_name}")
 
 
 def main():
