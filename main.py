@@ -60,6 +60,7 @@ def main():
 
     next_cursor = None
     first_round = True
+    break_at_newest_follower = False
     while True:
         try:
             next_cursor, previous_cursor, followers = api.GetFollowersPaged(
@@ -81,6 +82,7 @@ def main():
             for follower in followers:
                 if follower.id == newest_follower_id:
                     print(f"Break at newest_follower_id: {newest_follower_id}, @{follower.screen_name}")
+                    break_at_newest_follower = True
                     break
 
                 if first_round:
@@ -94,10 +96,11 @@ def main():
             if newest_follower_id is not None:
                 save_newest_follower_id(newest_follower_id)
 
-        if next_cursor == 0:
+        if break_at_newest_follower or next_cursor == 0:
             time.sleep(config.BTZ_CHECK_INTERVAL_SECONDS)
-            first_round = True
             next_cursor = None
+            first_round = True
+            break_at_newest_follower = False
 
 if __name__ == "__main__":
     main()
