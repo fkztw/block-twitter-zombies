@@ -56,13 +56,17 @@ def block_if_zombie(follower):
 
 def main():
     last_cursor = get_last_cursor()
+    print(f"last_cursor: {last_cursor}")
 
     next_cursor = None
     first_round = True
     while True:
+        cursor = next_cursor or last_cursor or -1
+        print(f"cursor: {cursor}")
+
         try:
             next_cursor, previous_cursor, followers = api.GetFollowersPaged(
-                cursor=next_cursor or last_cursor or -1,
+                cursor=cursor,
                 skip_status=True,
                 include_user_entities=False,
             )
