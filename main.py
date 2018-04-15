@@ -19,7 +19,8 @@ def get_last_round_newest_follower_id():
     try:
         with open(config.BTZ_LAST_ROUND_NEWEST_FOLLOWER_ID_FILENAME, 'r') as f:
             return int(f.read())
-    except:
+    except Exception as e:
+        print(e)
         return None
 
 
