@@ -36,8 +36,9 @@ def log_blocked_user(blocked_user):
 def block_if_zombie(follower):
     # Zombie: No followers and use default profile image.
     if (
-        follower.followers_count == 0 and
-        "http://abs.twimg.com/sticky/default_profile_images" in follower.profile_image_url
+        follower.followers_count <= 1 and
+        "http://abs.twimg.com/sticky/default_profile_images" in follower.profile_image_url and
+        follower.statuses_count == 0
     ):
         try:
             api.CreateBlock(
