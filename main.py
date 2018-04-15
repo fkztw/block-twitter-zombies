@@ -33,13 +33,28 @@ def log_blocked_user(blocked_user):
         now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         f.write(f"[{now}] @{blocked_user.screen_name} {blocked_user.id}\n")
 
+def is_default_twitter_profile_image(url):
+    if "abs.twimg.com/sticky/default_profile_images" in url:
+        return True
+    return False
+
+
+def is_zombie(follower):
+    if is_default_twitter_profile_image(follower.profile_image_url):
+        if follower.statuses_count == 0:
+            return True
+    else:
+        if (
+            follower.statuses_count == 0 and
+            follower.followers_count <= 1
+        ):
+           return True
+
+    return False
+
+
 def block_if_zombie(follower):
-    # Zombie: No followers and use default profile image.
-    if (
-        follower.followers_count <= 1 and
-        "http://abs.twimg.com/sticky/default_profile_images" in follower.profile_image_url and
-        follower.statuses_count == 0
-    ):
+    if is_zombie(follower):
         try:
             api.CreateBlock(
                 user_id=follower.id,
