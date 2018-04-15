@@ -72,12 +72,14 @@ def block_if_zombie(follower):
 
 def main():
     newest_follower_id = get_last_round_newest_follower_id()
-    print(f"newest_follower_id: {newest_follower_id}")
 
     next_cursor = None
     first_round = True
     break_at_newest_follower = False
     while True:
+        now = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        print(f"\nRun at: {now}")
+        print(f"newest_follower_id: {newest_follower_id}")
         try:
             next_cursor, previous_cursor, followers = api.GetFollowersPaged(
                 cursor=next_cursor,
