@@ -54,8 +54,17 @@ def is_zombie(follower):
     return False
 
 
+def is_created_lately(follower):
+    lately = datetime.timedelta(days=config.BTZ_CREATED_LATELY_DEFINITION_IN_DAYS)
+    # "Mon Apr 16 10:05:35 +0000 2018"
+    created_time = datetime.datetime.strptime(follower.created_at, "%a %b %d %H:%M:%S %z %Y")
+    if datetime.datetime.now(datetime.timezone.utc) - created_time <= lately:
+        return True
+    return False
+
+
 def block_if_zombie(follower):
-    if is_zombie(follower):
+    if is_created_lately(follower) and is_zombie(follower):
         try:
             api.CreateBlock(
                 user_id=follower.id,
