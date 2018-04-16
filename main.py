@@ -42,7 +42,10 @@ def is_default_twitter_profile_image(url):
 
 def is_zombie(follower):
     if is_default_twitter_profile_image(follower.profile_image_url):
-        if follower.statuses_count == 0:
+        if (
+            follower.statuses_count == 0 or
+            follower.favourites_count == 0
+        ):
             return True
     else:
         if (
