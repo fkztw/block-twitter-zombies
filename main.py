@@ -43,14 +43,16 @@ def is_default_twitter_profile_image(url):
 def is_zombie(follower):
     if is_default_twitter_profile_image(follower.profile_image_url):
         if (
-            follower.statuses_count == 0 or
-            follower.favourites_count == 0
+            follower.statuses_count <= config.BTZ_DEFAULT_PROFILE_IMAGE_ZOMBIE_STATUSES_COUNT_THRESHOLD
+            or
+            follower.favourites_count <= config.BTZ_DEFAULT_PROFILE_IMAGE_ZOMBIE_FAVOURITES_COUNT_THRESHOLD
         ):
             return True
     else:
         if (
-            follower.statuses_count == 0 and
-            follower.followers_count <= 1
+            follower.statuses_count <= config.BTZ_NON_DEFAULT_PROFILE_IMAGE_ZOMBIE_STATUSES_COUNT_THRESHOLD
+            and
+            follower.followers_count <= config.BTZ_NON_DEFAULT_PROFILE_IMAGE_ZOMBIE_FOLLOWERS_COUNT_THRESHOLD
         ):
            return True
 
